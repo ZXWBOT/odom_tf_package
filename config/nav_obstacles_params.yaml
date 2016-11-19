@@ -1,0 +1,5 @@
+TrajectoryPlannerROS:
+  max_vel_x: 0.4
+  pdist_scale: 0.9
+  gdist_scale: 0.4
+  

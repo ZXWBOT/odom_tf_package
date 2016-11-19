@@ -1,0 +1,33 @@
+<launch>
+
+  <param name="use_sim_time" value="false" />
+  
+  <!-- EDIT THIS LINE TO REFLECT THE NAME OF YOUR OWN MAP FILE 
+       Can also be overridden on the command line -->
+  <arg name="map" default="map.yaml" />
+
+  <!-- Run the map server with the desired map -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find odom_tf_package)/maps/$(arg map)"/>
+
+  <!-- Start the move_base node with the nav_test parameters -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
+    <rosparam file="$(find odom_tf_package)/config/zxbotconfig/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find odom_tf_package)/config/zxbotconfig/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find odom_tf_package)/config/zxbotconfig/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find odom_tf_package)/config/zxbotconfig/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find odom_tf_package)/config/zxbotconfig/base_local_planner_params.yaml" command="load" />
+
+    <rosparam file="$(find odom_tf_package)/config/nav_test_params.yaml" command="load" />
+  </node>
+
+
+  <!-- Fire up AMCL -->
+  <include file="$(find odom_tf_package)/launch/tb_amcl.launch" />
+  
+  <!-- Start the navigation test -->
+  <node pkg="odom_tf_package" type="nav_test.py" name="nav_test" output="screen">
+    <param name="rest_time" value="10" />
+    <param name="fake_test" value="false" />
+  </node>
+
+</launch>

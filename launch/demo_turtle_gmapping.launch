@@ -1,0 +1,58 @@
+  <launch>
+  <!-- 
+       Bringup Turtlebot:
+       $ roslaunch turtlebot_bringup minimal.launch
+       
+       Mapping:
+       $ roslaunch rtabmap_ros demo_turtlebot_mapping.launch
+       
+       Visualization:
+       $ roslaunch rtabmap_ros demo_turtlebot_rviz.launch
+       
+       This launch file is a one to one replacement of the gmapping_demo.launch in the 
+       "SLAM Map Building with TurtleBot" tutorial:
+       http://wiki.ros.org/turtlebot_navigation/Tutorials/indigo/Build%20a%20map%20with%20SLAM
+       
+       For localization-only after a mapping session, add argument "localization:=true" to
+       demo_turtlebot_mapping.launch line above. Move the robot around until it can relocalize in 
+       the previous map, then the 2D map should re-appear again. You can then follow the same steps 
+       from 3.3.2 of the "Autonomous Navigation of a Known Map with TurtleBot" tutorial:
+       http://wiki.ros.org/turtlebot_navigation/Tutorials/Autonomously%20navigate%20in%20a%20known%20map
+  -->
+
+    <param name="use_sim_time" value="false" />
+
+    
+    <node name="link_footprint" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_link base_footprint 50"/>
+    <node name="footprint_camera" pkg="tf" type="static_transform_publisher" args="0.20 0 0.50 0 0 0 base_footprint camera_link 50"/>
+    <node name="camera_rgb" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 camera_link camera_rgb_optical_frame 50"/>
+    <node name="rgb_depth" pkg="tf" type="static_transform_publisher" args="0 0.05 0 0 0 0 camera_rgb_optical_frame camera_depth_frame 50"/>
+
+
+    <node pkg="odom_tf_package" type="tf_broadcaster_node" name="serial_send_recevice" output="screen"/>
+
+    <!--include file="$(find rtabmap_ros)/launch/demo/demo_turtlebot_mapping.launch"/-->
+  
+  <arg name="node_name"             value="velocity_smoother"/>
+  <arg name="nodelet_manager_name"  value="nodelet_manager"/>
+  <arg name="config_file"           value="$(find odom_tf_package)/config/yocs_velocity_smoother.yaml"/>
+  <arg name="raw_cmd_vel_topic"     value="cmd_vel"/>
+  <arg name="smooth_cmd_vel_topic"  value="smoother_cmd_vel"/>
+  <arg name="robot_cmd_vel_topic"   value="robot_cmd_vel"/>
+  <arg name="odom_topic"            value="odom"/>
+  
+  <!-- nodelet manager -->
+  <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager_name)" args="manager"/>
+  
+  <!-- velocity smoother -->
+  <include file="$(find yocs_velocity_smoother)/launch/velocity_smoother.launch">
+    <arg name="node_name"             value="$(arg node_name)"/>
+    <arg name="nodelet_manager_name"  value="$(arg nodelet_manager_name)"/>
+    <arg name="config_file"           value="$(arg config_file)"/>
+    <arg name="raw_cmd_vel_topic"     value="$(arg raw_cmd_vel_topic)"/>
+    <arg name="smooth_cmd_vel_topic"  value="$(arg smooth_cmd_vel_topic)"/>
+    <arg name="robot_cmd_vel_topic"   value="$(arg robot_cmd_vel_topic)"/>
+    <arg name="odom_topic"            value="$(arg odom_topic)"/>
+  </include>
+
+</launch>
