@@ -104,7 +104,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 
 catkin_package(
-  INCLUDE_DIRS include
+## INCLUDE_DIRS include
   LIBRARIES odom_tf_package
   CATKIN_DEPENDS message_runtime nav_msgs roscpp rospy sensor_msgs std_msgs tf
   DEPENDS system_lib
